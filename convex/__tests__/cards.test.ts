@@ -34,6 +34,10 @@ describe("convex cards", () => {
     expect(list[0]).not.toHaveProperty("_id");
     await t.mutation(api.cards.incrementViews, { slug: "Abc123ZZ" });
     expect((await t.query(api.cards.getBySlug, { slug: "Abc123ZZ" }))?.views).toBe(1);
+    const repairedStorageId = await t.run(async (ctx) => ctx.storage.store(new Blob(["repaired-card"], { type: "image/png" })));
+    await expect(t.mutation(api.cards.replaceCardImage, { slug: "Abc123ZZ", editToken: "wrong", cardImageId: repairedStorageId })).rejects.toThrow();
+    await t.mutation(api.cards.replaceCardImage, { slug: "Abc123ZZ", editToken: "secret", cardImageId: repairedStorageId });
+    expect((await t.query(api.cards.getBySlug, { slug: "Abc123ZZ" }))?.cardImageUrl).toContain("/api/storage/");
     await expect(t.mutation(api.cards.remove, { slug: "Abc123ZZ", editToken: "wrong" })).rejects.toThrow();
     await t.mutation(api.cards.remove, { slug: "Abc123ZZ", editToken: "secret" });
     expect(await t.query(api.cards.getBySlug, { slug: "Abc123ZZ" })).toBeNull();

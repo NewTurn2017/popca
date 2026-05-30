@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCardBySlug, incrementViews, removeCard } from "@/lib/localCards";
+import { getCardBySlug, incrementViews, removeCard, replaceCardImage } from "@/lib/localCards";
 import type { StoredCard } from "@/types/card";
 
 export const runtime = "nodejs";
@@ -34,20 +34,32 @@ export async function GET(_request: Request, { params }: Params) {
 
 export async function PATCH(request: Request, { params }: Params) {
   const { slug } = await params;
-  let action: unknown;
+  let payload: { action?: unknown; editToken?: unknown; cardImageUrl?: unknown } = {};
   try {
     const raw = await request.text();
-    action = raw ? (JSON.parse(raw) as { action?: unknown }).action : undefined;
+    payload = raw ? (JSON.parse(raw) as { action?: unknown; editToken?: unknown; cardImageUrl?: unknown }) : {};
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 });
   }
 
-  if (action !== "incrementViews") {
-    return NextResponse.json({ error: "invalid action" }, { status: 400 });
+  if (payload.action === "incrementViews") {
+    await incrementViews(slug);
+    return NextResponse.json({ ok: true });
   }
 
-  await incrementViews(slug);
-  return NextResponse.json({ ok: true });
+  if (payload.action === "replaceCardImage") {
+    if (typeof payload.editToken !== "string" || typeof payload.cardImageUrl !== "string") {
+      return NextResponse.json({ error: "missing repair payload" }, { status: 400 });
+    }
+    try {
+      await replaceCardImage(slug, payload.editToken, payload.cardImageUrl);
+      return NextResponse.json({ ok: true });
+    } catch (error) {
+      return NextResponse.json({ error: error instanceof Error ? error.message : "failed" }, { status: 403 });
+    }
+  }
+
+  return NextResponse.json({ error: "invalid action" }, { status: 400 });
 }
 
 export async function DELETE(request: Request, { params }: Params) {

@@ -54,6 +54,15 @@ export async function incrementViews(slug: string): Promise<void> {
   await writeCards(cards);
 }
 
+export async function replaceCardImage(slug: string, editToken: string, cardImageUrl: string): Promise<void> {
+  const cards = await readCards();
+  const card = cards.find((candidate) => candidate.slug === slug);
+  if (!card) throw new Error("Card not found");
+  if (card.editToken !== editToken) throw new Error("Invalid edit token");
+  card.cardImageUrl = cardImageUrl;
+  await writeCards(cards);
+}
+
 export async function removeCard(slug: string, editToken: string): Promise<void> {
   const cards = await readCards();
   const card = cards.find((candidate) => candidate.slug === slug);

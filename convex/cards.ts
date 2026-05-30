@@ -79,6 +79,17 @@ export const incrementViews = mutation({
   },
 });
 
+export const replaceCardImage = mutation({
+  args: { slug: v.string(), editToken: v.string(), cardImageId: v.id("_storage") },
+  handler: async (ctx, { slug, editToken, cardImageId }) => {
+    const card = await ctx.db.query("cards").withIndex("by_slug", (q) => q.eq("slug", slug)).unique();
+    if (!card) throw new ConvexError("card not found");
+    if (card.editToken !== editToken) throw new ConvexError("invalid edit token");
+    await ctx.db.patch(card._id, { cardImageId });
+    return { slug };
+  },
+});
+
 export const remove = mutation({
   args: { slug: v.string(), editToken: v.string() },
   handler: async (ctx, { slug, editToken }) => {

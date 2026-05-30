@@ -4,26 +4,49 @@ import { Environment, Float, PresentationControls, RoundedBox, Text, useTexture 
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState } from "react";
 import * as THREE from "three";
+import { legacyCellCardRect } from "@/lib/crop";
 import type { PublicCard } from "@/types/card";
+
+function configuredTexture(texture: THREE.Texture, cellIndex: number) {
+  const image = texture.image as HTMLImageElement | undefined;
+  const width = image?.naturalWidth || image?.width || 1;
+  const height = image?.naturalHeight || image?.height || 1;
+  const isLegacySquareCell = Math.abs(width - height) <= 2;
+
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.offset.set(0, 0);
+  texture.repeat.set(1, 1);
+
+  if (!isLegacySquareCell) return { width, height };
+
+  const rect = legacyCellCardRect(width, height, cellIndex);
+  texture.offset.set(rect.sx / width, 1 - (rect.sy + rect.sh) / height);
+  texture.repeat.set(rect.sw / width, rect.sh / height);
+  texture.needsUpdate = true;
+  return { width: rect.sw, height: rect.sh };
+}
 
 function CardMesh({ card }: { card: PublicCard }) {
   const texture = useTexture(card.cardImageUrl);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const imageSize = configuredTexture(texture, card.cellIndex);
+  const aspect = Math.min(2.15, Math.max(1.25, imageSize.width / imageSize.height));
+  const cardWidth = 4.35;
+  const cardHeight = cardWidth / aspect;
   const [flipped, setFlipped] = useState(false);
   return (
     <Float speed={1.6} rotationIntensity={0.08} floatIntensity={0.28}>
       <group rotation-y={flipped ? Math.PI : 0} onClick={() => setFlipped((value) => !value)}>
-        <RoundedBox args={[4.2, 2.15, 0.12]} radius={0.12} smoothness={8} position={[0, 0, 0.02]}>
+        <RoundedBox args={[cardWidth, cardHeight, 0.12]} radius={0.12} smoothness={8} position={[0, 0, 0.02]}>
           <meshStandardMaterial map={texture} roughness={0.24} metalness={0.12} />
         </RoundedBox>
-        <RoundedBox args={[4.2, 2.15, 0.11]} radius={0.12} smoothness={8} position={[0, 0, -0.08]} rotation-y={Math.PI}>
+        <RoundedBox args={[cardWidth, cardHeight, 0.11]} radius={0.12} smoothness={8} position={[0, 0, -0.08]} rotation-y={Math.PI}>
           <meshStandardMaterial color={card.accent} roughness={0.36} metalness={0.35} />
         </RoundedBox>
-        <group position={[0, 0.35, -0.16]} rotation-y={Math.PI}>
+        <group position={[0, cardHeight * 0.17, -0.16]} rotation-y={Math.PI}>
           <Text fontSize={0.22} color="#07111f" anchorX="center" maxWidth={3.4}>{card.brand}</Text>
-          <Text position={[0, -0.34, 0]} fontSize={0.36} color="#020617" anchorX="center" fontWeight={800} maxWidth={3.5}>{card.name}</Text>
-          <Text position={[0, -0.72, 0]} fontSize={0.16} color="#0f172a" anchorX="center" maxWidth={3.5}>{card.title || card.styleName}</Text>
-          <Text position={[0, -1.0, 0]} fontSize={0.13} color="#1e293b" anchorX="center" maxWidth={3.5}>{[card.handle, card.website].filter(Boolean).join(" · ")}</Text>
+          <Text position={[0, -cardHeight * 0.16, 0]} fontSize={0.36} color="#020617" anchorX="center" fontWeight={800} maxWidth={3.5}>{card.name}</Text>
+          <Text position={[0, -cardHeight * 0.34, 0]} fontSize={0.16} color="#0f172a" anchorX="center" maxWidth={3.5}>{card.title || card.styleName}</Text>
+          <Text position={[0, -cardHeight * 0.47, 0]} fontSize={0.13} color="#1e293b" anchorX="center" maxWidth={3.5}>{[card.handle, card.website].filter(Boolean).join(" · ")}</Text>
         </group>
       </group>
     </Float>

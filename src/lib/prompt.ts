@@ -84,8 +84,9 @@ Use a premium futuristic web design tool interface.
 The cards should look like selectable digital UI components that could be hovered, selected, expanded, or animated on a website.
 
 Board style:
-Deep soft studio background, refined dark blue interface background, subtle rounded outer container, clean spacing between cards, polished design selection screen mood.
-Small style labels above each card are allowed.
+Deep soft studio background, refined dark blue interface background, clean spacing between cards, polished design selection screen mood.
+Do not add a title header, style labels, pagination dots, carousel controls, UI chrome, or any text outside the six card faces.
+Each card face must be large and centered in its slot so it can be cleanly cropped as an individual business card.
 No hands, no people, no desk objects, no paper stack, no clutter, no watermark.
 No real people, no celebrity likenesses, no copyrighted characters.
 

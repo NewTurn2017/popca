@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blobToDataUrl, cellRect, cropCell } from "@/lib/crop";
+import { blobToDataUrl, cellRect, cropCell, legacyCellCardRect, selectedCardRect } from "@/lib/crop";
 import { buildPrompt, normalizeCardInput, validateCardInput } from "@/lib/prompt";
 import { isSlug, makeEditToken, makeSlug } from "@/lib/slug";
 import { cardStylePayloadFor, POPCA_STYLES, styleFor } from "@/lib/styles";
@@ -21,6 +21,8 @@ describe("crop helpers", () => {
   it("returns 2x3 crop rectangles", () => {
     expect(cellRect(1024, 1536, 0)).toEqual({ sx: 0, sy: 0, sw: 512, sh: 512 });
     expect(cellRect(1024, 1536, 5)).toEqual({ sx: 512, sy: 1024, sw: 512, sh: 512 });
+    expect(selectedCardRect(1024, 1536, 5)).toEqual({ sx: 524, sy: 1081, sw: 452, sh: 315 });
+    expect(legacyCellCardRect(512, 512, 5)).toEqual({ sx: 12, sy: 57, sw: 452, sh: 315 });
     expect(() => cellRect(100, 100, -1)).toThrow(RangeError);
   });
   it("crops a cell to a blob and reads blobs as data URLs", async () => {
