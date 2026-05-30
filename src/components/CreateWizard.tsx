@@ -10,7 +10,7 @@ import { TextInput } from "@/components/ui/TextInput";
 import { blobToDataUrl, cropCell } from "@/lib/crop";
 import { getConvexClient } from "@/lib/convexClient";
 import { makeEditToken, makeSlug } from "@/lib/slug";
-import { styleFor } from "@/lib/styles";
+import { cardStylePayloadFor } from "@/lib/styles";
 import type { CardInput } from "@/types/card";
 
 const emptyInfo: CardInput = { brand: "", name: "", title: "", handle: "", website: "" };
@@ -92,7 +92,7 @@ export function CreateWizard() {
       const cropped = await cropCell(image, index);
       const cardImageUrl = await blobToDataUrl(cropped);
       const editToken = makeEditToken();
-      const style = styleFor(index);
+      const style = cardStylePayloadFor(index);
       const client = getConvexClient();
       let slug = makeSlug();
       if (client) {

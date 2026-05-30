@@ -2,13 +2,17 @@ import { describe, expect, it } from "vitest";
 import { blobToDataUrl, cellRect, cropCell } from "@/lib/crop";
 import { buildPrompt, normalizeCardInput, validateCardInput } from "@/lib/prompt";
 import { isSlug, makeEditToken, makeSlug } from "@/lib/slug";
-import { POPCA_STYLES, styleFor } from "@/lib/styles";
+import { cardStylePayloadFor, POPCA_STYLES, styleFor } from "@/lib/styles";
 
 describe("styleFor", () => {
   it("maps all six cells to stable style names and accents", () => {
     expect(POPCA_STYLES).toHaveLength(6);
     expect(styleFor(0).styleName).toBe("Arctic Glass");
     expect(styleFor(5).styleName).toBe("Liquid Metal");
+  });
+  it("returns a Convex-safe style payload without UI-only fields", () => {
+    expect(cardStylePayloadFor(0)).toEqual({ styleName: "Arctic Glass", accent: "#5ac8ff" });
+    expect(cardStylePayloadFor(0)).not.toHaveProperty("short");
   });
   it("rejects invalid cells", () => expect(() => styleFor(6)).toThrow(RangeError));
 });

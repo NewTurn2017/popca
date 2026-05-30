@@ -32,11 +32,11 @@ export default async function Home() {
                     <img src={card.cardImageUrl} alt={`${card.name} 팝카`} className="h-full w-full object-cover" />
                   </div>
                 ))
-              : Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="aspect-[2/1] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800 to-slate-950">
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_30%_20%,rgba(103,232,249,.55),transparent_35%),linear-gradient(135deg,#0f172a,#312e81)]" />
+              : (
+                  <div className="col-span-2 overflow-hidden rounded-2xl border border-white/10">
+                    <img src="/hero-card-styles.jpeg" alt="POPCA 디지털 명함 6종 콘셉트" className="h-full w-full object-cover" />
                   </div>
-                ))}
+                )}
           </div>
         </div>
       </section>

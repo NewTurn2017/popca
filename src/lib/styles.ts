@@ -1,4 +1,5 @@
 export type PopcaStyle = { styleName: string; accent: string; short: string };
+export type CardStylePayload = Pick<PopcaStyle, "styleName" | "accent">;
 
 export const POPCA_STYLES: PopcaStyle[] = [
   { styleName: "Arctic Glass", accent: "#5ac8ff", short: "서리빛 글래스" },
@@ -16,4 +17,9 @@ export function styleFor(index: number): PopcaStyle {
     throw new RangeError("cellIndex must be an integer from 0 to 5");
   }
   return POPCA_STYLES[index];
+}
+
+export function cardStylePayloadFor(index: number): CardStylePayload {
+  const { styleName, accent } = styleFor(index);
+  return { styleName, accent };
 }
