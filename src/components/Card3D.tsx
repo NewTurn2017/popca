@@ -14,8 +14,11 @@ function configuredTexture(texture: THREE.Texture, cellIndex: number) {
   const isLegacySquareCell = Math.abs(width - height) <= 2;
 
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
   texture.offset.set(0, 0);
   texture.repeat.set(1, 1);
+  texture.needsUpdate = true;
 
   if (!isLegacySquareCell) return { width, height };
 
@@ -32,13 +35,19 @@ function CardMesh({ card }: { card: PublicCard }) {
   const aspect = Math.min(2.15, Math.max(1.25, imageSize.width / imageSize.height));
   const cardWidth = 4.35;
   const cardHeight = cardWidth / aspect;
+  const frontWidth = cardWidth - 0.06;
+  const frontHeight = frontWidth / aspect;
   const [flipped, setFlipped] = useState(false);
   return (
     <Float speed={1.6} rotationIntensity={0.08} floatIntensity={0.28}>
       <group rotation-y={flipped ? Math.PI : 0} onClick={() => setFlipped((value) => !value)}>
         <RoundedBox args={[cardWidth, cardHeight, 0.12]} radius={0.12} smoothness={8} position={[0, 0, 0.02]}>
-          <meshStandardMaterial map={texture} roughness={0.24} metalness={0.12} />
+          <meshStandardMaterial color="#0b1220" roughness={0.32} metalness={0.28} />
         </RoundedBox>
+        <mesh position={[0, 0, 0.081]}>
+          <planeGeometry args={[frontWidth, frontHeight]} />
+          <meshBasicMaterial map={texture} toneMapped={false} />
+        </mesh>
         <RoundedBox args={[cardWidth, cardHeight, 0.11]} radius={0.12} smoothness={8} position={[0, 0, -0.08]} rotation-y={Math.PI}>
           <meshStandardMaterial color={card.accent} roughness={0.36} metalness={0.35} />
         </RoundedBox>
